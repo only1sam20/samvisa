@@ -1,0 +1,2 @@
+"use client";
+export default function ErrorPage({ reset }: { reset: () => void }) { return <section className="section"><div className="container not-found"><p className="eyebrow">A BRIEF INTERRUPTION</p><h1>Let’s try that again.</h1><p className="body-copy">This page could not load. Please try again in a moment.</p><button onClick={reset} className="button button-primary">Try Again</button></div></section>; }

@@ -6,9 +6,9 @@ export const siteConfig = {
   location: "Nigeria",
   experience: "10+ Years",
   url: (process.env.NEXT_PUBLIC_SITE_URL || "https://www.samueladeyemo.com").replace(/\/$/, ""),
-  email: "YOUR_EMAIL",
-  linkedin: "YOUR_LINKEDIN_URL",
-  whatsapp: "YOUR_WHATSAPP_NUMBER",
+  email: "adeyemosam23@gmail.com",
+  linkedin: "https://www.linkedin.com/in/samuel-adeyemo-88a37a296",
+  whatsapp: "2348057443491",
   description: "Samuel Adeyemo helps accomplished professionals strengthen EB-1A and O-1A profiles, pursue FIET and FBCS Fellowship, improve scholarly visibility and develop credible professional evidence strategies.",
 };
 

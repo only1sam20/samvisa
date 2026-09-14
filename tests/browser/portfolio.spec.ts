@@ -148,7 +148,7 @@ test("metadata, sitemap, missing assets and reduced motion have safe defaults", 
 test("core pages have no automated WCAG A/AA violations", async ({ page }) => {
   test.setTimeout(90_000);
   await page.emulateMedia({ reducedMotion: "reduce" });
-  for (const path of ["/", "/services", "/contact"]) {
+  for (const path of pages) {
     await page.goto(path);
     const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
     expect(results.violations.map(violation => ({ id: violation.id, nodes: violation.nodes.map(node => ({ target: node.target, summary: node.failureSummary })) })), path).toEqual([]);

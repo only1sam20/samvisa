@@ -150,7 +150,7 @@ To publish a testimonial manually:
 4. Set `approved: true` after moderation. The public rendering filters for strict `approved === true`.
 5. Rebuild and redeploy, then inspect the published result.
 
-An entry has `id`, `name`, `title`, `quote`, `service`, `privacyPreference`, and `approved`. The public file is a publication surface: never copy the full submission email, private contact information, or company details into it.
+An entry has `id`, `name`, `title`, `quote`, `service`, `privacyPreference`, and `approved`. Testimonial approval filtering and name minimization run on the server, so unapproved entries and restricted full names are not bundled into client JavaScript. The public file is still a publication surface: never copy the full submission email, private contact information, or company details into it.
 
 | Submitted preference | Public data preference | Publication handling |
 | --- | --- | --- |
@@ -221,7 +221,8 @@ app/
   sitemap.ts               Public route sitemap
   robots.ts                Crawler directives
 components/                Reusable layout, page, form, and UI components
-  home/Testimonials.tsx    Homepage testimonials and review dialog
+  home/Testimonials.tsx    Server-rendered approved testimonials
+  home/ReviewDialog.tsx    Client review-submission dialog
 lib/
   siteConfig.ts            Central owner and site configuration
   data/                    Editable professional content
@@ -234,7 +235,7 @@ docs/
   PROJECT_STATUS.md        Delivery tracking and verification results
   supabase-moderation.sql   Optional future schema; unused by this version
 tests/
-  api.test.ts              Fifteen API and validation tests
+  api.test.ts              Seventeen API and validation tests
   browser/portfolio.spec.ts  Responsive, interaction, and accessibility checks
 playwright.config.ts       Browser runner and production test server settings
 ```

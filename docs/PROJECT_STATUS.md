@@ -1,55 +1,58 @@
 # Project status: Samuel Adeyemo portfolio
 
-Snapshot: 14 September 2026. This document distinguishes source implementation from verification and public launch. It should be updated with actual command results as verification finishes.
+Verified: 14 September 2026. This document records completed implementation and local verification separately from public launch.
 
-**Current state:** dependencies are installed and the production build, lint, TypeScript checks, and all 15 API tests have passed. The production dependency audit reported zero vulnerabilities. The initial browser run passed 10 of 13 tests, including eight core pages at all six requested widths. Contrast and rating-interaction fixes are in progress; final browser acceptance remains pending. No deployment or real email delivery has been performed.
+**Current state:** implementation and local verification are complete. Production build, lint, TypeScript, all 17 API tests, and all 13 browser tests passed. The production dependency audit reported zero vulnerabilities. Eight core pages passed responsive checks at all six requested widths and automated accessibility scans. All 25 public content paths returned HTTP 200. Owner configuration and deployment remain; no real email was sent and no Vercel deployment was performed.
 
 ## Delivery scope
 
 | Deliverable | Source / location | Status |
 | --- | --- | --- |
 | Compatible framework and production application | `package.json`, `package-lock.json`, `app/`, `components/` | Installed; build, lint, and types passed |
-| Eight core public pages and all requested homepage sections | `app/page.tsx`, seven page directories, `components/home/` | Implemented; initial six-width checks passed |
+| Eight core public pages and all requested homepage sections | `app/page.tsx`, seven page directories, `components/home/` | Complete; six-width browser checks passed |
 | Twelve service details, five sample articles, three case-study examples, and 11 FAQs | `lib/data/`, dynamic service/article routes | Implemented; samples clearly labeled |
-| Navigation, filtering, article browsing, FAQ, review dialog, and responsive forms | `components/layout/`, `components/services/`, `components/insights/`, `components/forms/` | Implemented; final browser acceptance pending |
+| Navigation, filtering, article browsing, FAQ, review dialog, and responsive forms | `components/layout/`, `components/services/`, `components/insights/`, `components/forms/` | Complete; browser checks passed |
 | Profile/CV fallback logic and configurable contact links | `components/ui/`, `lib/siteConfig.ts` | Implemented; real owner assets and contacts not yet supplied |
-| Contact/review endpoints, validation, moderation defaults, spam protection, and safe failures | `app/api/`, `lib/server/`, `lib/validation.ts` | 15 API tests passed; real delivery requires configuration |
-| Metadata, canonical support, OpenGraph, sitemap, robots, and structured data | `app/layout.tsx`, `lib/metadata.ts`, metadata routes | Built; final browser output check pending |
+| Contact/review endpoints, validation, moderation defaults, spam protection, and safe failures | `app/api/`, `lib/server/`, `lib/validation.ts` | 17 API tests passed; real delivery requires configuration |
+| Metadata, canonical support, OpenGraph, sitemap, robots, and structured data | `app/layout.tsx`, `lib/metadata.ts`, metadata routes | Complete; build, browser checks, and route audit passed |
 | Editing/setup/deployment documentation and optional future review schema | `README.md`, `.env.example`, `docs/` | Written; Supabase schema remains unused |
-| API and browser verification suites | `tests/api.test.ts`, `tests/browser/portfolio.spec.ts`, `playwright.config.ts` | API 15/15; browser initial 10/13, final rerun pending |
+| API and browser verification suites | `tests/api.test.ts`, `tests/browser/portfolio.spec.ts`, `playwright.config.ts` | API 17/17; browser 13/13 passed |
 
 Testimonials live at `/#testimonials`. There is no separate `/testimonials` route. The application requires no visitor authentication and includes no public admin dashboard. A future Supabase connection is optional and has not been implemented.
 
 ## Verification tracker
 
-Results below are recorded from the implementation team's command output. Update the browser result after the final rerun. API tests use mocked email-provider responses and do not prove inbox delivery.
+Results below are recorded from the implementation team's final command output. API tests and browser success-state tests use mocked provider/network responses; they do not prove inbox delivery.
 
 | Check | Command / method | Recorded result |
 | --- | --- | --- |
 | Dependency installation and lockfile | `npm install` | Passed; lockfile exists |
-| Production compilation and route generation | `npm run build` | Passed; rebuild after final application fixes |
-| ESLint | `npm run lint` | Passed |
+| Production compilation and route generation | `npm run build` | Passed; 33 generated pages, including framework/metadata output |
+| ESLint | `npm run lint` | Passed; zero warnings and zero errors |
 | TypeScript | `npm run typecheck` | Passed |
-| API behavior and validation | `npm test` | Passed, 15/15 |
+| API behavior and validation | `npm test` | Passed, 17/17, including Host-alias regression coverage |
 | Production dependency audit | `npm audit --omit=dev` | Zero reported vulnerabilities at time of check |
 | Browser setup | Playwright configuration and 13 tests; installed Chrome selected with `PLAYWRIGHT_CHANNEL=chrome` | Complete; production server on port 3100 |
-| Complete browser suite | `npm run test:e2e` with Chrome channel | Initial 10/13 passed; contrast/rating fixes and full rerun pending |
-| 375, 430, 768, 1024, 1280, 1440 px | Eight core pages per width: HTTP 200, one H1, visible main, no horizontal overflow or page errors | All six initial layout tests passed; included in final rerun |
-| Interactions and accessibility | Navigation, filtering, draft labels, contact/review forms, focus, reduced motion, automated WCAG checks | Final rerun pending; do not claim full accessibility acceptance yet |
-| SEO and empty states | Canonical/JSON-LD output, sitemap/robots/OpenGraph/404, missing assets and placeholder links | Included in browser suite; final result pending |
-| Unconfigured email and submission privacy | Missing-configuration errors, consent, no self-approval, private review email, restricted display names | API tests passed; browser moderation workflow rerun pending |
+| Complete browser suite | `npm run test:e2e` with Chrome channel | Passed, 13/13 in 1.8 minutes |
+| 375, 430, 768, 1024, 1280, 1440 px | Eight core pages per width: HTTP 200, one H1, visible main, no horizontal overflow or page errors | Passed at every width |
+| Navigation and content interactions | Menu navigation/Escape/focus, category and search filters, service detail preselection, draft labels, keyboard FAQ | Passed |
+| Automated accessibility | WCAG 2 A/AA and 2.1 AA rule scans on all eight core pages | Zero automated violations |
+| Forms and focus behavior | Missing-config 503 responses retain input; mocked success focus/loading states; review dialog does not publish submissions | Passed |
+| SEO and empty states | Canonical/JSON-LD output, sitemap/robots/OpenGraph/404, missing assets, placeholder links, reduced motion | Passed |
+| Public content route audit | Request all sitemap content paths | 25/25 returned HTTP 200; no failures |
+| Submission privacy | Consent, no self-approval, private review email, restricted display names; server-side testimonial filtering | API/browser checks passed; server rendering excludes unapproved data from client bundles |
 | Configured photo, CV, and contact methods | Add owner-supplied assets and values, rebuild, inspect | Pending owner inputs |
 | Real Resend delivery | Configure verified sender and owner inbox, submit both forms, inspect receipt/delivery logs | Pending owner configuration |
 | Vercel deployment | Build on Vercel, configure domain, check production routes and forms | Not performed |
 
-No Lighthouse score has been measured or claimed in this record. Record measured results only if the audit is actually performed, including the environment and device profile.
+Automated accessibility scans cover the stated rules and pages; they are not a claim of exhaustive accessibility compliance. No Lighthouse score was measured.
 
 ## Priorities and dependencies
 
+Implementation verification is complete. Remaining work concerns owner launch inputs and optional enhancements.
+
 | Priority | Work | Owner | Completion condition |
 | --- | --- | --- | --- |
-| P0 | Complete contrast/rating fixes, rebuild, and rerun the full browser suite | Implementation team | All browser tests pass; final production build and relevant checks recorded |
-| P0 | Inspect final generated metadata, public routes, and interaction behavior | Implementation team | No unresolved navigation, form, accessibility, or overflow defects |
 | P1 | Provide public contact details and production domain | Samuel / site owner | Values replace selected placeholders and domain is confirmed |
 | P1 | Configure Resend and verify delivery of both forms | Site owner with implementation support | Verified sender credentials set; owner receives consultation and review messages |
 | P1 | Review personal history and publishable text | Samuel / site owner | Factual content confirmed; unresolved samples remain clearly labeled |
@@ -59,7 +62,7 @@ No Lighthouse score has been measured or claimed in this record. Record measured
 | P2 | Add distributed spam protection if traffic requires it | Site owner / implementation team | WAF or shared atomic limiter configured and tested |
 | Optional | Implement Supabase persistence and owner moderation workflow | Future implementation | Server-only credentials, private raw submissions, approved-only public projection, and authorization tests |
 
-The initial per-instance rate limiter is best-effort protection. It does not share counters across Vercel instances. This limitation is documented in the README and should inform any later scaling work.
+The per-instance rate limiter is best-effort protection. It does not share counters across Vercel instances. This limitation is documented in the README and should inform any later scaling work.
 
 ## Launch inputs still needed
 
@@ -88,20 +91,20 @@ Do not send secrets in public files or commit them to Git. Photo/CV changes and 
 
 - [x] Required application, content, and documentation source exists.
 - [x] Dependencies installed and lockfile recorded.
-- [x] Initial production build passes with no unresolved compile or import errors.
+- [x] Final production build passes with no unresolved compile or import errors.
 - [x] Lint and TypeScript checks pass.
-- [x] All 15 API tests pass, including malformed data, honeypot, origin, rate limit, provider failure, and missing configuration.
+- [x] All 17 API tests pass, including malformed data, honeypot, origin, rate limit, provider failure, missing configuration, and Host-alias regressions.
 - [x] Production dependency audit reports zero vulnerabilities at time of check.
-- [x] Initial layout checks pass across eight core pages at all six requested widths.
-- [ ] Final application fixes rebuilt and complete browser suite passes.
-- [ ] Browser tests pass for required navigation, filtering, accordions, modal, and form behavior.
-- [ ] Keyboard focus, labels, dialog behavior, and reduced motion are checked.
-- [ ] No signup/signin is required; no public admin page is exposed.
-- [ ] Reviews cannot publish automatically and only approved content can render.
+- [x] Layout checks pass across eight core pages at all six requested widths.
+- [x] Final application fixes rebuilt and all 13 browser tests pass.
+- [x] Browser tests pass for navigation, filtering, accordions, modal, and form behavior.
+- [x] Keyboard focus, labels, dialog behavior, and reduced motion are checked; automated scans report zero violations on eight core pages.
+- [x] No signup/signin is required; no public admin page is exposed.
+- [x] Reviews cannot publish automatically; server-side filtering renders only approved content.
 - [x] API privacy formatting preserves first-name/anonymous choices, and submitted reviews remain unapproved.
 - [x] Missing API configuration returns a useful error without claiming delivery.
-- [ ] Missing image/CV/contact information produces no broken link or image.
-- [ ] Canonical URLs, sitemap, robots, metadata, and structured data are inspected.
+- [x] Missing image/CV/contact information produces no broken link or image.
+- [x] Canonical URLs, sitemap, robots, metadata, and structured data are inspected; all 25 public content paths return HTTP 200.
 
 ### Launch acceptance
 
@@ -111,10 +114,10 @@ Do not send secrets in public files or commit them to Git. Photo/CV changes and 
 - [ ] Sample content remains labeled or has been replaced with verified, permitted material.
 - [ ] Privacy wording matches the services and retention practices actually enabled.
 - [ ] Production deployment succeeds and is reviewed on the final domain.
-- [ ] Handover includes exact local commands, deployment steps, and remaining owner inputs.
+- [x] README handover includes exact local commands, deployment steps, and remaining owner inputs.
 
 ## Verification environment and handover
 
-Pins verified from `package.json`: Next.js 16.3.4, React 19.3.0, Tailwind CSS 4.3.3, TypeScript 6.0.3, and ESLint 9.39.5. TypeScript and ESLint versions retain compatibility with the installed lint tooling. Browser checks currently use installed Chrome through `PLAYWRIGHT_CHANNEL=chrome` against `http://127.0.0.1:3100`; normal development uses port 3000. The README also documents the default downloaded-Chromium workflow.
+Pins verified from `package.json`: Next.js 16.3.4, React 19.3.0, Tailwind CSS 4.3.3, TypeScript 6.0.3, and ESLint 9.39.5. TypeScript and ESLint versions retain compatibility with the installed lint tooling. Browser checks used installed Chrome through `PLAYWRIGHT_CHANNEL=chrome` against `http://127.0.0.1:3100`; normal development uses port 3000. The README also documents the default downloaded-Chromium workflow.
 
-Final browser results remain pending. Record the final build/test summaries and any remaining limitations after the rerun. Add a deployed URL only after deployment; distinguish local tests with mocked email responses from real provider delivery and production-domain checks.
+The local production preview is running at [http://localhost:3100](http://localhost:3100) at handover. This is a local server, not a deployment. Restart it with `npm run start -- --port 3100` after a successful build if the process stops. Real email delivery, production credentials, custom-domain DNS, and Vercel deployment await owner setup.

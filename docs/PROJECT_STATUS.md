@@ -2,60 +2,43 @@
 
 Snapshot: 14 September 2026. This document distinguishes source implementation from verification and public launch. It should be updated with actual command results as verification finishes.
 
-**Current state:** the application source and documentation have been created. Production build, lint, type checks, API tests, and browser verification remain pending in this status record. No deployment or real email-delivery result is recorded. Source existence alone is not a production acceptance result.
+**Current state:** dependencies are installed and the production build, lint, TypeScript checks, and all 15 API tests have passed. The production dependency audit reported zero vulnerabilities. The initial browser run passed 10 of 13 tests, including eight core pages at all six requested widths. Contrast and rating-interaction fixes are in progress; final browser acceptance remains pending. No deployment or real email delivery has been performed.
 
 ## Delivery scope
 
-The status “Implemented; verification pending” means the relevant source files exist. It does not claim that the feature has passed a browser or runtime test.
-
 | Deliverable | Source / location | Status |
 | --- | --- | --- |
-| Next.js App Router project with TypeScript, styles, and npm scripts | `package.json`, `tsconfig.json`, `next.config.ts`, `app/layout.tsx`, `app/globals.css` | Source scaffold present; dependency installation and compatibility verification pending |
-| Homepage: hero, metrics, about, services, audiences, process, experience/expertise, cases, testimonials, insights, FAQ, and consultation CTA | `app/page.tsx`, `components/home/` | Implemented; verification pending |
-| Public about, services, case studies, insights, contact, privacy, and disclaimer pages | `app/about/`, `app/services/`, `app/case-studies/`, `app/insights/`, `app/contact/`, `app/privacy/`, `app/disclaimer/` | Implemented; verification pending |
-| Twelve individual service pages and five sample article pages generated from content | `app/services/[slug]/page.tsx`, `app/insights/[slug]/page.tsx`, `lib/data/` | Implemented; verification pending |
-| Sticky navigation, mobile menu, footer, floating actions, active states, and section links | `components/layout/` | Implemented; keyboard and responsive verification pending |
-| Service filtering and insight browsing | `components/services/ServiceExplorer.tsx`, `components/insights/InsightExplorer.tsx` | Implemented; interaction verification pending |
-| Profile image and CV detection with intentional missing-file states | `components/ui/ProfileImage.tsx`, `components/ui/CVLink.tsx` | Implemented; both present/missing asset states require verification |
-| Accessible labels, error feedback, loading states, contact preference fields, and consent | `components/forms/`, `lib/validation.ts` | Implemented; runtime and accessibility verification pending |
-| Validated consultation email endpoint | `app/api/contact/route.ts` | Implemented; API verification and real delivery pending |
-| Review submission, private owner email, and manual moderation | `app/api/reviews/route.ts`, `components/home/Testimonials.tsx`, `lib/data/testimonials.ts` | Implemented; moderation and privacy verification pending |
-| Request validation, honeypot, size limit, origin checks, rate limiting, and graceful email errors | `lib/server/`, `lib/validation.ts` | Implemented; API tests pending |
-| Metadata, canonical support, OpenGraph image, sitemap, robots, and structured data | `app/layout.tsx`, `lib/metadata.ts`, `app/opengraph-image.tsx`, `app/sitemap.ts`, `app/robots.ts` | Implemented; build and output inspection pending |
-| Central identity, contact, service, article, FAQ, and portfolio content | `lib/siteConfig.ts`, `lib/data/` | Implemented; owner input still needed |
-| Setup, editing, Resend, moderation, and Vercel documentation | `README.md`, `.env.example` | Written; final verification results to be recorded here |
-| Optional future private review schema | `docs/supabase-moderation.sql` | Documentation only; unused by the application |
-| API test source | `tests/api.test.ts` | Present; execution pending |
-| Browser test setup and responsive acceptance | npm `test:e2e` script | Configuration/spec completion and execution pending |
+| Compatible framework and production application | `package.json`, `package-lock.json`, `app/`, `components/` | Installed; build, lint, and types passed |
+| Eight core public pages and all requested homepage sections | `app/page.tsx`, seven page directories, `components/home/` | Implemented; initial six-width checks passed |
+| Twelve service details, five sample articles, three case-study examples, and 11 FAQs | `lib/data/`, dynamic service/article routes | Implemented; samples clearly labeled |
+| Navigation, filtering, article browsing, FAQ, review dialog, and responsive forms | `components/layout/`, `components/services/`, `components/insights/`, `components/forms/` | Implemented; final browser acceptance pending |
+| Profile/CV fallback logic and configurable contact links | `components/ui/`, `lib/siteConfig.ts` | Implemented; real owner assets and contacts not yet supplied |
+| Contact/review endpoints, validation, moderation defaults, spam protection, and safe failures | `app/api/`, `lib/server/`, `lib/validation.ts` | 15 API tests passed; real delivery requires configuration |
+| Metadata, canonical support, OpenGraph, sitemap, robots, and structured data | `app/layout.tsx`, `lib/metadata.ts`, metadata routes | Built; final browser output check pending |
+| Editing/setup/deployment documentation and optional future review schema | `README.md`, `.env.example`, `docs/` | Written; Supabase schema remains unused |
+| API and browser verification suites | `tests/api.test.ts`, `tests/browser/portfolio.spec.ts`, `playwright.config.ts` | API 15/15; browser initial 10/13, final rerun pending |
 
 Testimonials live at `/#testimonials`. There is no separate `/testimonials` route. The application requires no visitor authentication and includes no public admin dashboard. A future Supabase connection is optional and has not been implemented.
 
 ## Verification tracker
 
-Replace “Pending” only after reviewing the actual output. Record any remaining failure precisely, including its effect on delivery. Do not treat a mocked provider response as real email delivery.
+Results below are recorded from the implementation team's command output. Update the browser result after the final rerun. API tests use mocked email-provider responses and do not prove inbox delivery.
 
 | Check | Command / method | Recorded result |
 | --- | --- | --- |
-| Install dependencies and create reproducible lockfile | `npm install`; inspect `package.json` and `package-lock.json` | Pending |
-| Production compilation and route generation | `npm run build` | Pending |
-| ESLint | `npm run lint` | Pending |
-| TypeScript | `npm run typecheck` | Pending |
-| API behavior and validation | `npm test` | Pending |
-| Browser test setup | Create/review `playwright.config.ts` and browser specs; `npx playwright install chromium` | Pending |
-| Browser suite | `npm run test:e2e` | Pending |
-| 375 px mobile layout | Browser: overflow, stacking, navigation, CTA and form usability | Pending |
-| 430 px mobile layout | Browser: overflow, stacking, navigation, CTA and form usability | Pending |
-| 768 px tablet layout | Browser: navigation transition, grids, forms, and readability | Pending |
-| 1024 px laptop layout | Browser: header fit, grids, forms, and text wrapping | Pending |
-| 1280 px desktop layout | Browser: spacing, hierarchy, cards, and navigation | Pending |
-| 1440 px desktop layout | Browser: content width, image treatment, and balanced whitespace | Pending |
-| Keyboard and dialog behavior | Tab order, visible focus, mobile menu, FAQ, review dialog open/close and focus return | Pending |
-| Reduced-motion behavior | Browser emulation of `prefers-reduced-motion` | Pending |
-| Routes and links | Required routes, all service/article links, section anchors, not-found state | Pending |
-| SEO output | Titles, descriptions, canonical URLs, JSON-LD, OpenGraph, sitemap and robots | Pending |
-| Missing credentials | Valid submissions return a useful error without a crash or false success | Pending |
-| Moderation and privacy | Unapproved reviews excluded; first-name and anonymous rendering respect stored consented data | Pending |
-| Missing and configured assets/contacts | Profile/CV fallback plus configured image, CV, email, LinkedIn and WhatsApp behavior | Pending |
+| Dependency installation and lockfile | `npm install` | Passed; lockfile exists |
+| Production compilation and route generation | `npm run build` | Passed; rebuild after final application fixes |
+| ESLint | `npm run lint` | Passed |
+| TypeScript | `npm run typecheck` | Passed |
+| API behavior and validation | `npm test` | Passed, 15/15 |
+| Production dependency audit | `npm audit --omit=dev` | Zero reported vulnerabilities at time of check |
+| Browser setup | Playwright configuration and 13 tests; installed Chrome selected with `PLAYWRIGHT_CHANNEL=chrome` | Complete; production server on port 3100 |
+| Complete browser suite | `npm run test:e2e` with Chrome channel | Initial 10/13 passed; contrast/rating fixes and full rerun pending |
+| 375, 430, 768, 1024, 1280, 1440 px | Eight core pages per width: HTTP 200, one H1, visible main, no horizontal overflow or page errors | All six initial layout tests passed; included in final rerun |
+| Interactions and accessibility | Navigation, filtering, draft labels, contact/review forms, focus, reduced motion, automated WCAG checks | Final rerun pending; do not claim full accessibility acceptance yet |
+| SEO and empty states | Canonical/JSON-LD output, sitemap/robots/OpenGraph/404, missing assets and placeholder links | Included in browser suite; final result pending |
+| Unconfigured email and submission privacy | Missing-configuration errors, consent, no self-approval, private review email, restricted display names | API tests passed; browser moderation workflow rerun pending |
+| Configured photo, CV, and contact methods | Add owner-supplied assets and values, rebuild, inspect | Pending owner inputs |
 | Real Resend delivery | Configure verified sender and owner inbox, submit both forms, inspect receipt/delivery logs | Pending owner configuration |
 | Vercel deployment | Build on Vercel, configure domain, check production routes and forms | Not performed |
 
@@ -65,10 +48,8 @@ No Lighthouse score has been measured or claimed in this record. Record measured
 
 | Priority | Work | Owner | Completion condition |
 | --- | --- | --- | --- |
-| P0 | Finish dependency installation and resolve compatibility issues | Implementation team | Lockfile exists; required packages resolve |
-| P0 | Run build, lint, types, and API tests; fix all failures | Implementation team | Every required command passes with recorded results |
-| P0 | Complete browser setup and test all requested widths and key interactions | Implementation team | No unresolved navigation, form, accessibility, or overflow defects |
-| P0 | Inspect generated metadata and public routes | Implementation team | Links resolve; intended canonical domain can be configured; no private administration surface exists |
+| P0 | Complete contrast/rating fixes, rebuild, and rerun the full browser suite | Implementation team | All browser tests pass; final production build and relevant checks recorded |
+| P0 | Inspect final generated metadata, public routes, and interaction behavior | Implementation team | No unresolved navigation, form, accessibility, or overflow defects |
 | P1 | Provide public contact details and production domain | Samuel / site owner | Values replace selected placeholders and domain is confirmed |
 | P1 | Configure Resend and verify delivery of both forms | Site owner with implementation support | Verified sender credentials set; owner receives consultation and review messages |
 | P1 | Review personal history and publishable text | Samuel / site owner | Factual content confirmed; unresolved samples remain clearly labeled |
@@ -103,30 +84,22 @@ Do not send secrets in public files or commit them to Git. Photo/CV changes and 
 
 ## Acceptance checklist
 
-### Source scope recorded
-
-- [x] Required public page source exists.
-- [x] Homepage contains the requested professional sections.
-- [x] Twelve service entries and five labeled sample articles exist.
-- [x] Consultation and moderated review forms have client and server source.
-- [x] Metadata, sitemap, robots, privacy, and disclaimer source exists.
-- [x] Personal placeholders, case examples, and testimonial placeholders are explicit.
-- [x] Missing profile/CV/contact values have intentional fallback logic.
-- [x] README, environment example, and optional future moderation schema exist.
-
 ### Verification acceptance
 
-- [ ] Dependencies installed and lockfile reviewed.
-- [ ] Production build passes with no unresolved compile or import errors.
-- [ ] Lint and TypeScript checks pass.
-- [ ] API tests pass, including malformed data, honeypot, origin, rate limit, provider failure, and missing configuration.
+- [x] Required application, content, and documentation source exists.
+- [x] Dependencies installed and lockfile recorded.
+- [x] Initial production build passes with no unresolved compile or import errors.
+- [x] Lint and TypeScript checks pass.
+- [x] All 15 API tests pass, including malformed data, honeypot, origin, rate limit, provider failure, and missing configuration.
+- [x] Production dependency audit reports zero vulnerabilities at time of check.
+- [x] Initial layout checks pass across eight core pages at all six requested widths.
+- [ ] Final application fixes rebuilt and complete browser suite passes.
 - [ ] Browser tests pass for required navigation, filtering, accordions, modal, and form behavior.
-- [ ] All six requested widths have no horizontal overflow and usable layouts.
 - [ ] Keyboard focus, labels, dialog behavior, and reduced motion are checked.
 - [ ] No signup/signin is required; no public admin page is exposed.
 - [ ] Reviews cannot publish automatically and only approved content can render.
-- [ ] First-name/anonymous publication does not expose additional private identity.
-- [ ] Missing API configuration gives a useful error without claiming delivery.
+- [x] API privacy formatting preserves first-name/anonymous choices, and submitted reviews remain unapproved.
+- [x] Missing API configuration returns a useful error without claiming delivery.
 - [ ] Missing image/CV/contact information produces no broken link or image.
 - [ ] Canonical URLs, sitemap, robots, metadata, and structured data are inspected.
 
@@ -140,6 +113,8 @@ Do not send secrets in public files or commit them to Git. Photo/CV changes and 
 - [ ] Production deployment succeeds and is reviewed on the final domain.
 - [ ] Handover includes exact local commands, deployment steps, and remaining owner inputs.
 
-## Verification notes and handover record
+## Verification environment and handover
 
-Final results are pending. Update this section with the completion date, command summaries, browser coverage, any remaining limitations, and the deployed URL only after those actions occur. Distinguish automated tests with mocked email responses from real provider delivery and production-domain checks.
+Pins verified from `package.json`: Next.js 16.3.4, React 19.3.0, Tailwind CSS 4.3.3, TypeScript 6.0.3, and ESLint 9.39.5. TypeScript and ESLint versions retain compatibility with the installed lint tooling. Browser checks currently use installed Chrome through `PLAYWRIGHT_CHANNEL=chrome` against `http://127.0.0.1:3100`; normal development uses port 3000. The README also documents the default downloaded-Chromium workflow.
+
+Final browser results remain pending. Record the final build/test summaries and any remaining limitations after the rerun. Add a deployed URL only after deployment; distinguish local tests with mocked email responses from real provider delivery and production-domain checks.

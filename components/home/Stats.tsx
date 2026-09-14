@@ -1,6 +1,7 @@
 import { Award, BriefcaseBusiness, Globe2, GraduationCap } from "lucide-react";
+import { siteConfig } from "@/lib/siteConfig";
 const stats = [
-  { icon: BriefcaseBusiness, value: "10+ Years", label: "Professional experience" },
+  { icon: BriefcaseBusiness, value: siteConfig.experience, label: "Professional experience" },
   { icon: Award, value: "EB-1A & O-1A", label: "Profile development" },
   { icon: GraduationCap, value: "FIET & FBCS", label: "Professional Fellowship support" },
   { icon: Globe2, value: "Global Professionals", label: "Across disciplines and industries" },

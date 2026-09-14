@@ -47,7 +47,7 @@ function request(path: "contact" | "reviews", body: unknown, headers: Record<str
 
 test("a valid consultation reaches the owner as plain text with a reply address", async (t) => {
   setup(t);
-  const fetchMock = t.mock.method(globalThis, "fetch", async (url, init) => {
+  const fetchMock = t.mock.method(globalThis, "fetch", async (url: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) => {
     assert.equal(url, "https://api.resend.com/emails");
     const payload = JSON.parse(String(init?.body));
     assert.equal(payload.reply_to, contact.email);
@@ -110,7 +110,7 @@ test("consent is required and a caller cannot self-approve a review", async (t) 
 
 test("review emails are unapproved and explicitly preserve anonymous publication", async (t) => {
   setup(t);
-  t.mock.method(globalThis, "fetch", async (_url, init) => {
+  t.mock.method(globalThis, "fetch", async (_url: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) => {
     const payload = JSON.parse(String(init?.body));
     assert.match(payload.text, /approved: false/);
     assert.match(payload.text, /Permitted public display name: Anonymous client/);
@@ -169,6 +169,40 @@ test("cross-origin requests and populated honeypots are blocked", async (t) => {
   assert.equal(crossSite.status, 403);
   const honeypot = await contactPost(request("contact", { ...contact, website: "spam" }));
   assert.equal(honeypot.status, 400);
+});
+
+test("same-origin checks use the incoming Host when Next normalizes its internal URL", async (t) => {
+  setup(t, false);
+  const normalizedRequest = (origin: string, host = "127.0.0.1:3100") => new Request("http://localhost:3100/api/contact", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json", Origin: origin, Host: host,
+      "Sec-Fetch-Site": "same-origin", "x-forwarded-for": "198.51.100.20",
+    },
+    body: JSON.stringify(contact),
+  });
+  const accepted = await contactPost(normalizedRequest("http://127.0.0.1:3100"));
+  assert.equal(accepted.status, 503);
+  assert.match((await accepted.json()).message, /Email is not configured/);
+  assert.equal((await contactPost(normalizedRequest("http://localhost:3100"))).status, 403);
+  assert.equal((await contactPost(normalizedRequest("https://untrusted.example"))).status, 403);
+  assert.equal((await contactPost(normalizedRequest("http://127.0.0.1:3100", "127.0.0.1:3100/anything"))).status, 400);
+});
+
+test("forwarded transport is trusted only on the managed Vercel boundary", async (t) => {
+  setup(t, false);
+  delete process.env.NEXT_PUBLIC_SITE_URL;
+  const proxiedRequest = () => new Request("http://localhost:3100/api/contact", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json", Origin: "https://portfolio.example.org", Host: "portfolio.example.org",
+      "Sec-Fetch-Site": "same-origin", "x-forwarded-proto": "https", "x-forwarded-for": "198.51.100.21",
+    },
+    body: JSON.stringify(contact),
+  });
+  assert.equal((await contactPost(proxiedRequest())).status, 503);
+  delete process.env.VERCEL;
+  assert.equal((await contactPost(proxiedRequest())).status, 403);
 });
 
 test("oversized bodies are bounded even without a Content-Length header", async () => {

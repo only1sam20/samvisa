@@ -8,15 +8,17 @@ Implementation coverage, verification results, and remaining launch inputs are t
 
 ## Technology
 
-- Next.js App Router, React, and TypeScript.
-- Tailwind CSS with custom design tokens and component styles.
+- Next.js 16.3.4 App Router, React 19.3.0, and TypeScript 6.0.3.
+- Tailwind CSS 4.3.3 with custom design tokens and component styles.
 - Framer Motion for subtle animation and Lucide React for icons.
 - Zod for shared client and server form validation.
 - Resend email delivery through server-side native `fetch`; no email SDK or database is required.
 - Node's test runner with `tsx` for API tests; Playwright for browser checks.
 - Vercel as the deployment target.
 
-Dependency versions are declared in `package.json`; `npm install` records the resolved versions in `package-lock.json`. Commit the generated lockfile and use it for reproducible installs. Framework setup references: [Next.js installation](https://nextjs.org/docs/app/getting-started/installation) and [Tailwind CSS with Next.js](https://tailwindcss.com/docs/installation/framework-guides/nextjs).
+Dependency versions are pinned in `package.json`, and the installed dependency tree is recorded in the included `package-lock.json`. TypeScript 6.0.3 is the latest compatible line selected for this project's `typescript-eslint` tooling; TypeScript 7 is outside that tooling's supported range. ESLint 9.39.5 is retained for compatibility with the React plugins in Next.js's lint configuration. These are intentional compatibility choices.
+
+Use the supplied pins and lockfile. Review peer-dependency support and rerun the checks below before upgrading packages; do not replace every pin with `latest`. Use `npm ci` for a clean, reproducible installation from the existing lockfile. Framework setup references: [Next.js installation](https://nextjs.org/docs/app/getting-started/installation) and [Tailwind CSS with Next.js](https://tailwindcss.com/docs/installation/framework-guides/nextjs).
 
 ## Run locally
 
@@ -231,7 +233,10 @@ public/
 docs/
   PROJECT_STATUS.md        Delivery tracking and verification results
   supabase-moderation.sql   Optional future schema; unused by this version
-tests/                     API and browser verification
+tests/
+  api.test.ts              Fifteen API and validation tests
+  browser/portfolio.spec.ts  Responsive, interaction, and accessibility checks
+playwright.config.ts       Browser runner and production test server settings
 ```
 
 Metadata includes page titles and descriptions, OpenGraph data, canonical support, a sitemap, robots configuration, and structured data for a Person, ProfessionalService, and WebSite. Set the actual domain before requesting indexing. Do not add unverified awards or credentials to structured data.
@@ -245,22 +250,36 @@ npm run lint
 npm run typecheck
 npm test
 npm run build
+npm audit --omit=dev
 ```
 
-For browser tests, install Playwright's Chromium browser once and run:
+Browser tests exercise a production build. Install Playwright's Chromium browser once, then build and run:
 
 ```powershell
 npx playwright install chromium
+npm run build
 npm run test:e2e
 ```
 
-Inspect `playwright.config.ts` for the test server settings. After a failure, open Playwright's report when one has been generated:
+`playwright.config.ts` starts or reuses a production server at `http://127.0.0.1:3100`; normal `npm run dev` and `npm run start` use port 3000. The browser test server intentionally runs with email credentials empty so tests cannot send real submissions. If you reuse an existing server on port 3100, ensure it also has those credentials empty.
+
+An installed Google Chrome can be used instead of Playwright's downloaded Chromium:
+
+```powershell
+$env:PLAYWRIGHT_CHANNEL = "chrome"
+npm run test:e2e
+Remove-Item Env:\PLAYWRIGHT_CHANNEL
+```
+
+The current local verification uses that Chrome channel. The default command uses Playwright's Chromium after the installation command above. After a failure, open Playwright's report when one has been generated:
 
 ```powershell
 npx playwright show-report
 ```
 
-These are repeatable validation commands, not a claim of a particular Lighthouse score or live-provider delivery. Confirm real email delivery separately after you configure Resend. Browser checks should cover navigation, keyboard behavior, the service filters, form validation, honest missing-configuration errors, and layouts around 375, 430, 768, 1024, 1280, and 1440 pixels. Also verify the chosen photo and CV after adding them.
+Playwright reports, traces, and failure screenshots are written under `playwright-report/` and `test-results/`; additional local screenshots may be placed under `artifacts/`. These generated directories are ignored by Git.
+
+Recorded results are in [Project status](docs/PROJECT_STATUS.md). These commands do not establish a Lighthouse score or live-provider delivery. Confirm real email delivery separately after you configure Resend. Browser checks cover navigation, keyboard behavior, service filters, form validation, honest missing-configuration errors, and layouts at 375, 430, 768, 1024, 1280, and 1440 pixels. Also verify the chosen photo and CV after adding them.
 
 ## Deploy to Vercel
 

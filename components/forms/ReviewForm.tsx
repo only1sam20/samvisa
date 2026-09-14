@@ -51,7 +51,7 @@ export default function ReviewForm() {
         <div className="rating-options">
           {[1, 2, 3, 4, 5].map((value) => (
             <label className={`rating-option${value <= rating ? " is-selected" : ""}`} key={value}>
-              <input className="sr-only" type="radio" name="rating" value={value} checked={rating === value} onChange={() => setRating(value)} required aria-label={`${value} ${value === 1 ? "star" : "stars"}`} />
+              <input className="rating-input" type="radio" name="rating" value={value} checked={rating === value} onChange={() => setRating(value)} required aria-label={`${value} ${value === 1 ? "star" : "stars"}`} />
               <Star size={29} aria-hidden="true" fill={value <= rating ? "currentColor" : "none"} />
             </label>
           ))}

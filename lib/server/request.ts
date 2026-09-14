@@ -32,7 +32,31 @@ export function enforceSameOrigin(request: Request) {
   // Origin-less requests remain usable by non-browser clients; browsers sending
   // cross-origin POSTs must pass the explicit Origin check below.
   if (!origin) return;
-  const allowed = new Set([new URL(request.url).origin]);
+  const requestUrl = new URL(request.url);
+  const host = request.headers.get("host");
+  let requestOrigin = requestUrl.origin;
+  if (host) {
+    // Next.js may normalize the internal URL to localhost even when the browser
+    // connected to 127.0.0.1. The incoming Host identifies the actual authority;
+    // reject credentials, paths and other non-host syntax before constructing it.
+    if (!/^(?:[a-z0-9.-]+|\[[a-f0-9:.]+\])(?::\d{1,5})?$/i.test(host)) {
+      throw new RequestError(400, "The request address is invalid. Please reload the page and try again.");
+    }
+    let protocol = requestUrl.protocol;
+    // Trust proxy transport metadata only at Vercel's managed proxy boundary.
+    // Self-hosted proxies must preserve the original request scheme or add an
+    // explicitly trusted integration instead of accepting arbitrary headers.
+    if (process.env.VERCEL === "1") {
+      const forwardedProtocol = request.headers.get("x-forwarded-proto");
+      if (forwardedProtocol === "https" || forwardedProtocol === "http") protocol = `${forwardedProtocol}:`;
+    }
+    try {
+      requestOrigin = new URL(`${protocol}//${host}`).origin;
+    } catch {
+      throw new RequestError(400, "The request address is invalid. Please reload the page and try again.");
+    }
+  }
+  const allowed = new Set([requestOrigin]);
   if (process.env.NEXT_PUBLIC_SITE_URL) {
     try { allowed.add(new URL(process.env.NEXT_PUBLIC_SITE_URL).origin); } catch { /* Ignore invalid optional site configuration. */ }
   }

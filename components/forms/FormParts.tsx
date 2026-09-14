@@ -11,13 +11,9 @@ export function useSubmission(endpoint: string) {
   const [status, setStatus] = useState<"idle" | "submitting" | "error" | "success">("idle");
   const [message, setMessage] = useState("");
   const [errors, setErrors] = useState<FieldErrors>({});
-  const feedbackRef = useRef<HTMLDivElement>(null);
   const controllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => () => controllerRef.current?.abort(), []);
-  useEffect(() => {
-    if (status === "error" || status === "success") feedbackRef.current?.focus();
-  }, [status, message, errors]);
 
   function field(name: string) {
     return {
@@ -79,7 +75,7 @@ export function useSubmission(endpoint: string) {
   }
 
   function reset() { setStatus("idle"); setMessage(""); setErrors({}); }
-  return { status, message, errors, field, submit, reset, feedbackRef };
+  return { status, message, errors, field, submit, reset };
 }
 
 export function FormField({ id, label, optional, required, full, error, children }: {
@@ -106,17 +102,23 @@ export function Honeypot({ id }: { id: string }) {
 }
 
 export function FormFeedback({ submission }: { submission: ReturnType<typeof useSubmission> }) {
-  if (!submission.message) return null;
-  const success = submission.status === "success";
+  const feedbackRef = useRef<HTMLDivElement>(null);
+  const { status, message, errors } = submission;
+  useEffect(() => {
+    if (status === "error" || status === "success") feedbackRef.current?.focus();
+  }, [status, message, errors]);
+
+  if (!message) return null;
+  const success = status === "success";
   return (
     <div
       className={`form-status form-full ${success ? "form-status-success" : "form-status-error"}`}
       role={success ? "status" : "alert"}
       tabIndex={-1}
-      ref={submission.feedbackRef}
+      ref={feedbackRef}
     >
       {success && <CheckCircle2 size={22} aria-hidden="true" />}
-      <p>{submission.message}</p>
+      <p>{message}</p>
     </div>
   );
 }

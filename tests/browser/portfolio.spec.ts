@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 
 const pages = ["/", "/about", "/services", "/case-studies", "/insights", "/contact", "/privacy", "/disclaimer"];
 
@@ -68,6 +69,8 @@ test("review dialog works on mobile, validates, and never publishes submissions"
   await trigger.click();
   const dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
+  await dialog.click({ position: { x: 10, y: 10 } });
+  await expect(dialog).toBeVisible();
   await dialog.getByRole("button", { name: "Submit Review" }).click();
   await expect(dialog.locator(".form-error").first()).toBeVisible();
   await dialog.getByLabel("Full name").fill("Example Professional");
@@ -76,10 +79,16 @@ test("review dialog works on mobile, validates, and never publishes submissions"
   await dialog.getByRole("radio", { name: "5 stars", exact: true }).check();
   await dialog.getByLabel("Review / testimonial").fill("A browser test review that must never be published to the live page.");
   await dialog.getByRole("checkbox").check();
+  const reviewResponse = page.waitForResponse("**/api/reviews");
   await dialog.getByRole("button", { name: "Submit Review" }).click();
+  expect((await reviewResponse).status()).toBe(503);
   await expect(dialog.locator(".form-status-error")).toBeVisible();
   await expect(dialog.getByLabel("Full name")).toHaveValue("Example Professional");
   expect(await dialog.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
+  await page.route("**/api/reviews", route => route.fulfill({ status: 200, json: { ok: true, message: "Your review was received for moderation. It will not appear automatically." } }));
+  await dialog.getByRole("button", { name: "Submit Review" }).click();
+  await expect(dialog.locator(".form-status-success")).toBeFocused();
+  await expect(dialog.getByRole("button", { name: "Share another experience" })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(dialog).not.toBeVisible();
   await expect(trigger).toBeFocused();
@@ -90,7 +99,7 @@ test("consultation fails honestly when email is unconfigured and retains input",
   await page.goto("/contact");
   await page.getByLabel("Full name").fill("Example Professional");
   await page.getByLabel("Email address").fill("example@example.org");
-  await page.getByLabel("Country", { exact: true }).fill("Nigeria");
+  await page.getByLabel(/^Country/).fill("Nigeria");
   await page.getByLabel("Profession / job title").fill("Engineer");
   await page.getByLabel("Years of professional experience").fill("10");
   await page.getByLabel("Target service").selectOption("Professional Profile Assessment");
@@ -103,6 +112,17 @@ test("consultation fails honestly when email is unconfigured and retains input",
   await expect(page.locator(".form-status-error")).toBeVisible();
   await expect(page.getByLabel("Full name")).toHaveValue("Example Professional");
   await expect(page.getByRole("button", { name: "Request Consultation" })).toBeEnabled();
+  let releaseDelivery!: () => void;
+  const delivery = new Promise<void>(resolve => { releaseDelivery = resolve; });
+  await page.route("**/api/contact", async route => {
+    await delivery;
+    await route.fulfill({ status: 200, json: { ok: true, message: "Your consultation request has been received." } });
+  });
+  await page.getByRole("button", { name: "Request Consultation" }).click();
+  await expect(page.getByRole("button", { name: "Sending…" })).toBeDisabled();
+  releaseDelivery();
+  await expect(page.locator(".form-status-success")).toBeFocused();
+  await expect(page.getByRole("button", { name: "Send another inquiry" })).toBeVisible();
 });
 
 test("metadata, sitemap, missing assets and reduced motion have safe defaults", async ({ page, request }) => {
@@ -118,4 +138,19 @@ test("metadata, sitemap, missing assets and reduced motion have safe defaults", 
   expect((await request.get("/robots.txt")).status()).toBe(200);
   expect((await request.get("/opengraph-image")).status()).toBe(200);
   expect((await request.get("/page-that-does-not-exist")).status()).toBe(404);
+  const faq = page.locator(".faq-item").filter({ hasText: "Do you guarantee EB-1A approval?" });
+  await faq.locator("summary").click();
+  await expect(faq.locator("p")).toBeVisible();
+  await faq.locator("summary").press("Enter");
+  await expect(faq.locator("p")).not.toBeVisible();
+});
+
+test("core pages have no automated WCAG A/AA violations", async ({ page }) => {
+  test.setTimeout(90_000);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const path of ["/", "/services", "/contact"]) {
+    await page.goto(path);
+    const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
+    expect(results.violations.map(violation => ({ id: violation.id, nodes: violation.nodes.map(node => ({ target: node.target, summary: node.failureSummary })) })), path).toEqual([]);
+  }
 });

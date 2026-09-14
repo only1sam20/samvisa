@@ -26,7 +26,7 @@
 .info-note > svg { margin-bottom: 12px; color: #9a8047; }
 .profile-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 23px; padding-top: 25px; border-top: 1px solid #e2e6e8; }
 .profile-facts div:last-child { grid-column: 1 / -1; }
-.profile-facts dt { margin-bottom: 5px; color: #7b858d; font-size: .73rem; }
+.profile-facts dt { margin-bottom: 5px; color: #63717b; font-size: .73rem; }
 .profile-facts dd { margin: 0; color: #183550; font-size: .86rem; font-weight: 600; }
 .about-profile-image { min-height: 550px; align-self: stretch; }
 .experience-list { border-left: 1px solid #dfe5e8; padding-left: 30px; }

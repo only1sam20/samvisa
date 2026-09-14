@@ -89,13 +89,15 @@ Use only information you want to publish. Do not put private identity documents,
 
 ## Add a profile photograph and CV
 
-Add your actual professional photo at:
+The supplied professional portrait is included, unmodified, at:
 
 ```text
-public/images/samuel-profile.jpg
+public/images/samuel-profile.png
 ```
 
-Use a clear portrait with enough room around your head and shoulders for responsive cropping. The site uses Next.js image optimization. Until the file exists, an intentional `SA` initials treatment is shown.
+The shared portrait component displays this photo on Home and About. It uses Next.js image optimization and fits the complete image into a square frame, preserving the supplied circular composition without cropping it.
+
+To replace the portrait, use `public/images/samuel-profile.png` or `public/images/samuel-profile.jpg`. The component checks for JPG first, then PNG; if both exist, the JPG is displayed. When neither file exists, the `SA` initials treatment is shown.
 
 Add your final public CV at:
 
@@ -229,7 +231,7 @@ lib/
   validation.ts            Shared form rules and dropdown options
   server/                  Server email and request protection helpers
 public/
-  images/                  Optional profile image
+  images/                  Supplied samuel-profile.png portrait
   documents/               Optional public CV
 docs/
   PROJECT_STATUS.md        Delivery tracking and verification results
@@ -280,7 +282,7 @@ npx playwright show-report
 
 Playwright reports, traces, and failure screenshots are written under `playwright-report/` and `test-results/`; additional local screenshots may be placed under `artifacts/`. These generated directories are ignored by Git.
 
-Recorded results are in [Project status](docs/PROJECT_STATUS.md). These commands do not establish a Lighthouse score or live-provider delivery. Confirm real email delivery separately after you configure Resend. Browser checks cover navigation, keyboard behavior, service filters, form validation, honest missing-configuration errors, and layouts at 375, 430, 768, 1024, 1280, and 1440 pixels. Also verify the chosen photo and CV after adding them.
+Recorded results are in [Project status](docs/PROJECT_STATUS.md). These commands do not establish a Lighthouse score or live-provider delivery. Confirm real email delivery separately after you configure Resend. Browser checks cover navigation, keyboard behavior, service filters, form validation, honest missing-configuration errors, and layouts at 375, 430, 768, 1024, 1280, and 1440 pixels. The asset check verifies that a configured portrait loads, or that its initials fallback appears when absent. Also inspect the portrait and CV after replacing either asset.
 
 ## Deploy to Vercel
 
@@ -301,7 +303,8 @@ No deployment or external email delivery is performed merely by installing or bu
 - [ ] Replace `YOUR_EMAIL`, `YOUR_LINKEDIN_URL`, and `YOUR_WHATSAPP_NUMBER` in `lib/siteConfig.ts` for the contact methods you want to offer.
 - [ ] Set the real production domain in `NEXT_PUBLIC_SITE_URL`; confirm domain ownership and DNS configuration.
 - [ ] Set `RESEND_API_KEY`, `CONTACT_EMAIL`, and the verified `RESEND_FROM_EMAIL`; confirm receipt of both types of submission.
-- [ ] Add your actual portrait and public CV if ready, then rebuild. Leaving these absent produces intentional placeholders instead of broken links.
+- [x] Supplied portrait added as `public/images/samuel-profile.png`; the original image is preserved.
+- [ ] Add your public CV if ready, then rebuild. Missing portrait/CV files produce intentional placeholders instead of broken links.
 - [ ] Replace the experience dates and descriptions with verified career history.
 - [ ] Review the service descriptions, professional biography, FAQs, and public policy wording for accuracy.
 - [ ] Review or replace the five editorial draft articles. Keep draft labels on samples that remain.

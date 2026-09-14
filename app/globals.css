@@ -99,6 +99,7 @@ a.text-link:hover, button.text-link:hover { color: var(--gold); }
 .profile-bottomline > span:first-child { font-family: var(--font-manrope); font-size: 12px; font-weight: 650; }
 .profile-bottomline > span:last-child { font-size: 6px; letter-spacing: .95px; color: #63717b; }
 .profile-image { position: relative; width: 100%; aspect-ratio: .96; overflow: hidden; border-radius: 6px; background: var(--navy); }
+.profile-image.has-portrait { aspect-ratio: 1; background: #202124; }
 .profile-monogram { width: 100%; height: 100%; position: relative; isolation: isolate; overflow: hidden; background: linear-gradient(135deg, #183b53 0%, #102b43 48%, #10283e 100%); }
 .monogram-grid { position: absolute; inset: 0; background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px); background-size: 48px 48px; opacity: .025; }
 .monogram-orbit { position: absolute; border: 1px solid #c1ad7535; border-radius: 50%; width: 103%; aspect-ratio: 1; left: 34%; top: 10%; transform: rotate(-25deg); }

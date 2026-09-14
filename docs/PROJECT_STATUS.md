@@ -12,7 +12,7 @@ Verified: 14 September 2026. This document records completed implementation and 
 | Eight core public pages and all requested homepage sections | `app/page.tsx`, seven page directories, `components/home/` | Complete; six-width browser checks passed |
 | Twelve service details, five sample articles, three case-study examples, and 11 FAQs | `lib/data/`, dynamic service/article routes | Implemented; samples clearly labeled |
 | Navigation, filtering, article browsing, FAQ, review dialog, and responsive forms | `components/layout/`, `components/services/`, `components/insights/`, `components/forms/` | Complete; browser checks passed |
-| Profile/CV fallback logic and configurable contact links | `components/ui/`, `lib/siteConfig.ts` | Implemented; real owner assets and contacts not yet supplied |
+| Profile/CV fallback logic and configurable contact links | `components/ui/`, `lib/siteConfig.ts`, `public/images/samuel-profile.png` | Original portrait supplied and added; CV and contacts still await owner inputs |
 | Contact/review endpoints, validation, moderation defaults, spam protection, and safe failures | `app/api/`, `lib/server/`, `lib/validation.ts` | 17 API tests passed; real delivery requires configuration |
 | Metadata, canonical support, OpenGraph, sitemap, robots, and structured data | `app/layout.tsx`, `lib/metadata.ts`, metadata routes | Complete; build, browser checks, and route audit passed |
 | Editing/setup/deployment documentation and optional future review schema | `README.md`, `.env.example`, `docs/` | Written; Supabase schema remains unused |
@@ -41,7 +41,8 @@ Results below are recorded from the implementation team's final command output. 
 | SEO and empty states | Canonical/JSON-LD output, sitemap/robots/OpenGraph/404, missing assets, placeholder links, reduced motion | Passed |
 | Public content route audit | Request all sitemap content paths | 25/25 returned HTTP 200; no failures |
 | Submission privacy | Consent, no self-approval, private review email, restricted display names; server-side testimonial filtering | API/browser checks passed; server rendering excludes unapproved data from client bundles |
-| Configured photo, CV, and contact methods | Add owner-supplied assets and values, rebuild, inspect | Pending owner inputs |
+| Configured portrait | Original supplied `public/images/samuel-profile.png`, shared on Home and About; rebuild and inspect | PASS: production build and targeted browser test; image loads without cropping or horizontal overflow on both pages at 375, 768, and 1440px |
+| Configured CV and contact methods | Add owner-supplied asset and values, rebuild, inspect | Pending owner inputs |
 | Real Resend delivery | Configure verified sender and owner inbox, submit both forms, inspect receipt/delivery logs | Pending owner configuration |
 | Vercel deployment | Build on Vercel, configure domain, check production routes and forms | Not performed |
 
@@ -57,7 +58,7 @@ Implementation verification is complete. Remaining work concerns owner launch in
 | P1 | Configure Resend and verify delivery of both forms | Site owner with implementation support | Verified sender credentials set; owner receives consultation and review messages |
 | P1 | Review personal history and publishable text | Samuel / site owner | Factual content confirmed; unresolved samples remain clearly labeled |
 | P1 | Deploy and verify the production domain | Site owner / deployment operator | Vercel build succeeds; public site and configured forms checked |
-| P2 | Add portrait and downloadable CV | Samuel / site owner | Consented public assets added, rebuilt, and inspected; safe fallbacks are acceptable until ready |
+| P2 | Add downloadable CV | Samuel / site owner | Public CV added, rebuilt, and inspected; safe fallback remains until ready. Portrait has been supplied. |
 | P2 | Replace sample articles, cases, and testimonials with approved material | Samuel / site owner | Drafts reviewed; real client content has permission; anonymous data is properly minimized |
 | P2 | Add distributed spam protection if traffic requires it | Site owner / implementation team | WAF or shared atomic limiter configured and tested |
 | Optional | Implement Supabase persistence and owner moderation workflow | Future implementation | Server-only credentials, private raw submissions, approved-only public projection, and authorization tests |
@@ -65,6 +66,8 @@ Implementation verification is complete. Remaining work concerns owner launch in
 The per-instance rate limiter is best-effort protection. It does not share counters across Vercel instances. This limitation is documented in the README and should inform any later scaling work.
 
 ## Launch inputs still needed
+
+The professional portrait has been supplied and saved unmodified as `public/images/samuel-profile.png`. Home and About share this image. The component accepts JPG or PNG, preferring JPG when both exist, and preserves the full image in its frame.
 
 | Input | Edit / configure | Requirement |
 | --- | --- | --- |
@@ -76,7 +79,6 @@ The per-instance rate limiter is best-effort protection. It does not share count
 | Owner destination inbox | `CONTACT_EMAIL` server environment | Plain valid receiving address |
 | Verified sender address | `RESEND_FROM_EMAIL` server environment | Plain valid address on a verified Resend domain |
 | Verified experience dates and descriptions | `experience` in `lib/data/content.ts` | Replace editable career placeholders before presenting a finished professional CV |
-| Professional portrait | `public/images/samuel-profile.jpg` | Optional until ready; initials remain the fallback |
 | Public CV | `public/documents/samuel-adeyemo-cv.pdf` | Optional until ready; no broken download is shown |
 | Article approval | `lib/data/insights.ts` | Review editorial drafts before removing their sample markers |
 | Real case-study information | `lib/data/content.ts` | Only add verified details with client permission; samples may remain clearly labeled |

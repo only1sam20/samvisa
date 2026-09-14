@@ -1,5 +1,8 @@
 import { expect, test } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import { siteConfig } from "../../lib/siteConfig";
 
 const pages = ["/", "/about", "/services", "/case-studies", "/insights", "/contact", "/privacy", "/disclaimer"];
 
@@ -125,11 +128,24 @@ test("consultation fails honestly when email is unconfigured and retains input",
   await expect(page.getByRole("button", { name: "Send another inquiry" })).toBeVisible();
 });
 
-test("metadata, sitemap, missing assets and reduced motion have safe defaults", async ({ page, request }) => {
+test("metadata, sitemap, profile assets and reduced motion have safe defaults", async ({ page, request }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await expect(page.locator("html")).toHaveCSS("scroll-behavior", "auto");
-  await expect(page.getByRole("img", { name: "SA, initials of Samuel Adeyemo" })).toBeVisible();
+  const imageFile = ["samuel-profile.jpg", "samuel-profile.png"].find(file => existsSync(join(process.cwd(), "public/images", file)));
+  if (imageFile) {
+    const portrait = page.getByRole("img", { name: siteConfig.name, exact: true });
+    await expect(portrait).toBeVisible();
+    await expect.poll(() => portrait.evaluate(image => {
+      const element = image as HTMLImageElement;
+      return element.complete && element.naturalWidth > 0 && element.naturalHeight > 0;
+    })).toBe(true);
+    await expect(page.locator(".profile-monogram")).toHaveCount(0);
+  } else {
+    const initials = siteConfig.name.split(" ").map(part => part[0]).join("");
+    await expect(page.getByRole("img", { name: `${initials}, initials of ${siteConfig.name}`, exact: true })).toBeVisible();
+    await expect(page.locator(".profile-image img")).toHaveCount(0);
+  }
   await expect(page.getByRole("link", { name: "Download CV" })).toHaveCount(0);
   await expect(page.locator('a[href*="YOUR_"]')).toHaveCount(0);
   expect(await page.locator('link[rel="canonical"]').getAttribute("href")).toMatch(/^https?:\/\//);

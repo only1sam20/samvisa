@@ -6,6 +6,20 @@ The site uses a navy, warm white, and restrained gold visual identity, responsiv
 
 Implementation coverage, verification results, and remaining launch inputs are tracked in [Project status](docs/PROJECT_STATUS.md).
 
+## Typography
+
+Inter is used for body text and controls; Manrope is used for headings. Shared `--text-*` tokens in `app/globals.css` define the reading scale, with inner-page styles in `app/inner-pages.css`.
+
+| Role | Default rendered size |
+| --- | --- |
+| Body copy | 16–18px, fluid with viewport width |
+| Hero introduction | 18–20px |
+| Desktop navigation / buttons | 16px / 15px |
+| Captions, labels, and supporting notes | 14–15px |
+| Card headings / section headings | 20–24px / 32–44px |
+
+Sizes use `rem` and fluid bounds so they follow browser text preferences. Mobile layouts retain readable copy sizes. The header switches to a menu below 1440px, the hero stacks at 900px, and hero buttons stack at 640px. Keep the header breakpoint synchronized with `components/layout/Navbar.tsx` when changing it. The small brand descriptor is 12px; the LinkedIn letter mark is an icon rather than body text.
+
 ## Technology
 
 - Next.js 16.3.4 App Router, React 19.3.0, and TypeScript 6.0.3.

@@ -23,7 +23,7 @@ export default function Navbar() {
   }, []);
   useEffect(() => {
     if (!open) return;
-    const closeOnWide = () => { if (window.innerWidth >= 1200) setOpen(false); };
+    const closeOnWide = () => { if (window.matchMedia("(min-width: 1440px)").matches) setOpen(false); };
     const keydown = (event: KeyboardEvent) => {
       if (event.key === "Escape") { setOpen(false); toggleRef.current?.focus(); }
       if (event.key === "Tab") {

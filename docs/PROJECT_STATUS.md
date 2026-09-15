@@ -1,8 +1,10 @@
 # Project status: Samuel Adeyemo portfolio
 
-Verified: 14 September 2026. This document records completed implementation and local verification separately from public launch.
+Latest verification: 15 September 2026 (typography revision). Original implementation checks were completed on 14 September. This document records completed implementation and local verification separately from public launch.
 
 **Current state:** implementation and local verification are complete. Production build, lint, TypeScript, all 17 API tests, and all 13 browser tests passed. The production dependency audit reported zero vulnerabilities. Eight core pages passed responsive checks at all six requested widths and automated accessibility scans. All 25 public content paths returned HTTP 200. Owner configuration and deployment remain; no real email was sent and no Vercel deployment was performed.
+
+**Typography correction, 15 September:** replaced undersized text throughout Home, inner pages, cards, forms, and footer with shared relative sizes: 16–18px body copy, 18–20px hero introduction, 16px desktop navigation, 15px buttons, and 14–15px supporting text. Responsive layouts now preserve these sizes, with earlier menu/hero stacking and mobile button stacking. Portrait captions, the experience badge, fallback labels, and article illustrations were adjusted to fit. Production build (including TypeScript), lint, all 13 browser tests, and 39 additional route/viewport inspections passed. No environment settings were changed.
 
 ## Delivery scope
 
@@ -33,7 +35,7 @@ Results below are recorded from the implementation team's final command output. 
 | API behavior and validation | `npm test` | Passed, 17/17, including Host-alias regression coverage |
 | Production dependency audit | `npm audit --omit=dev` | Zero reported vulnerabilities at time of check |
 | Browser setup | Playwright configuration and 13 tests; installed Chrome selected with `PLAYWRIGHT_CHANNEL=chrome` | Complete; production server on port 3100 |
-| Complete browser suite | `npm run test:e2e` with Chrome channel | Passed, 13/13 in 1.8 minutes |
+| Complete browser suite | `npm run test:e2e` with Chrome channel | Passed again after typography revision, 13/13 in 1.7 minutes |
 | 375, 430, 768, 1024, 1280, 1440 px | Eight core pages per width: HTTP 200, one H1, visible main, no horizontal overflow or page errors | Passed at every width |
 | Navigation and content interactions | Menu navigation/Escape/focus, category and search filters, service detail preselection, draft labels, keyboard FAQ | Passed |
 | Automated accessibility | WCAG 2 A/AA and 2.1 AA rule scans on all eight core pages | Zero automated violations |
@@ -42,6 +44,7 @@ Results below are recorded from the implementation team's final command output. 
 | Public content route audit | Request all sitemap content paths | 25/25 returned HTTP 200; no failures |
 | Submission privacy | Consent, no self-approval, private review email, restricted display names; server-side testimonial filtering | API/browser checks passed; server rendering excludes unapproved data from client bundles |
 | Configured portrait | Original supplied `public/images/samuel-profile.png`, shared on Home and About; rebuild and inspect | PASS: production build and targeted browser test; image loads without cropping or horizontal overflow on both pages at 375, 768, and 1440px |
+| Typography and layout revision | Computed font sizes, screenshots, additional widths 320/900/1439/1920px, service/article detail pages, menu resizing, and mobile review dialog | PASS: 39 additional route/viewport inspections without overflow or undersized content text; desktop/mobile screenshots inspected; evidence in ignored `artifacts/typography-*` files |
 | Configured CV and contact methods | Add owner-supplied asset and values, rebuild, inspect | Pending owner inputs |
 | Real Resend delivery | Configure verified sender and owner inbox, submit both forms, inspect receipt/delivery logs | Pending owner configuration |
 | Vercel deployment | Build on Vercel, configure domain, check production routes and forms | Not performed |

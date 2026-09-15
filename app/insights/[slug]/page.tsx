@@ -30,7 +30,7 @@ export default async function InsightPage({ params }: Props) {
   return (
     <>
       <article>
-        <header className="page-intro"><div className="container"><Link href="/insights" className="back-link"><ArrowLeft size={16} aria-hidden="true" />All insights</Link><p className="eyebrow"><span />{article.category}</p><h1>{article.title}</h1><p className="body-copy">{article.excerpt}</p><div className="mt-7 flex flex-wrap items-center gap-5 text-sm"><span>{siteConfig.name}</span><span className="inline-flex items-center gap-2"><Clock3 size={15} aria-hidden="true" />{article.readTime}</span>{article.isPlaceholder && <span className="placeholder-label">Sample article · Editorial draft</span>}</div></div></header>
+        <header className="page-intro"><div className="container"><Link href="/insights" className="back-link"><ArrowLeft size={16} aria-hidden="true" />All insights</Link><p className="eyebrow"><span />{article.category}</p><h1>{article.title}</h1><p className="body-copy">{article.excerpt}</p><div className="article-byline mt-7 flex flex-wrap items-center gap-5"><span>{siteConfig.name}</span><span className="inline-flex items-center gap-2"><Clock3 size={15} aria-hidden="true" />{article.readTime}</span>{article.isPlaceholder && <span className="placeholder-label">Sample article · Editorial draft</span>}</div></div></header>
         <div className="container article-hero-art"><ArticleArt article={article} /></div>
         <div className="section"><div className="container article-body">
           {article.isPlaceholder && <p className="info-note">This is sample editorial content prepared for this website. It is general professional-development information, not legal advice or a claim about client results.</p>}

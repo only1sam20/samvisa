@@ -17,6 +17,7 @@ export default defineConfig({
     url: "http://127.0.0.1:3100",
     reuseExistingServer: !process.env.CI,
     timeout: 90_000,
-    env: { RESEND_API_KEY: "", CONTACT_EMAIL: "", RESEND_FROM_EMAIL: "" },
+    // Nonempty invalid settings cannot fall back to live .env.local values.
+    env: { RESEND_API_KEY: "disabled-for-browser-tests", CONTACT_EMAIL: "not-an-email", RESEND_FROM_EMAIL: "not-an-email" },
   },
 });

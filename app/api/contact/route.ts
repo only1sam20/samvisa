@@ -20,7 +20,7 @@ export async function POST(request: Request) {
         "NEW CONSULTATION REQUEST",
         `Name: ${data.name}`,
         `Email: ${data.email}`,
-        `Phone: ${data.phone || "Not provided"}`,
+        `Phone: ${data.phone}`,
         `Country: ${data.country}`,
         `Profession: ${data.profession}`,
         `Years of professional experience: ${data.experience}`,

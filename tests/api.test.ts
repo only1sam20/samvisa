@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
-import { test, type TestContext } from "node:test";
+import { beforeEach, test, type TestContext } from "node:test";
 import { POST as contactPost } from "../app/api/contact/route";
 import { POST as reviewPost } from "../app/api/reviews/route";
 import { checkRateLimit, readJsonBody, RequestError } from "../lib/server/request";
 import { contactSchema, reviewDisplayName, reviewSchema } from "../lib/validation";
 
 const contact = {
-  name: "Example Professional", email: "example@example.org", phone: "", country: "Nigeria",
+  name: "Example Professional", email: "example@example.org", phone: "+234 803 123 4567", country: "Nigeria",
   profession: "Software engineer", experience: "10", service: "Professional Profile Assessment",
   situation: "I would like to document my existing professional achievements.",
   help: "I need support organizing my professional evidence.", contactMethod: "Email",
@@ -18,6 +18,13 @@ const review = {
   privacyPreference: "anonymous", consent: true, website: "",
 };
 let requestNumber = 0;
+
+// Every test starts with networking blocked. Tests exercising delivery replace
+// this mock with a provider response; no test can send a real email.
+beforeEach((t) => {
+  assert.ok("mock" in t, "The API test network guard requires an individual test context.");
+  t.mock.method(globalThis, "fetch", async () => { throw new Error("Unexpected network request in API test"); });
+});
 
 function setup(t: TestContext, configured = true) {
   const keys = ["RESEND_API_KEY", "CONTACT_EMAIL", "RESEND_FROM_EMAIL", "VERCEL", "NODE_ENV", "NEXT_PUBLIC_SITE_URL"];
@@ -84,17 +91,64 @@ test("production missing-configuration errors do not expose implementation detai
   assert.doesNotMatch(payload.message, /RESEND|\.env|API_KEY/);
 });
 
-test("WhatsApp requires a phone number and LinkedIn requires a real profile URL", async (t) => {
+test("LinkedIn requires a real profile URL", async (t) => {
   setup(t);
-  const whatsapp = await contactPost(request("contact", { ...contact, contactMethod: "WhatsApp" }));
-  assert.equal(whatsapp.status, 422);
-  assert.ok((await whatsapp.json()).fieldErrors.phone);
   const linkedin = await contactPost(request("contact", { ...contact, contactMethod: "LinkedIn", linkedin: "https://linkedin.com.attacker.example/in/example" }));
   assert.equal(linkedin.status, 422);
   assert.ok((await linkedin.json()).fieldErrors.linkedin);
   assert.equal(contactSchema.safeParse({ ...contact, contactMethod: "LinkedIn", linkedin: "https://www.linkedin.com/in/example/" }).success, true);
   assert.equal(contactSchema.safeParse({ ...contact, contactMethod: "LinkedIn", linkedin: "https://www.linkedin.com/in/" }).success, false);
   assert.equal(contactSchema.safeParse({ ...contact, contactMethod: "LinkedIn", linkedin: "https://www.linkedin.com:444/in/example/" }).success, false);
+});
+
+test("every contact method requires a valid phone before sending", async (t) => {
+  setup(t);
+  const fetchMock = t.mock.method(globalThis, "fetch", async () => { throw new Error("Invalid submissions must not reach the provider"); });
+  const invalidPhones = [undefined, "", "   ", "123456", "+234 803 CALL ME", "+1234567890123456", "234+8031234567", "++2348031234567"];
+  for (const contactMethod of ["Email", "WhatsApp", "LinkedIn"]) {
+    for (const phone of invalidPhones) {
+      const response = await contactPost(request("contact", {
+        ...contact, contactMethod, phone, linkedin: "https://www.linkedin.com/in/example/",
+      }));
+      assert.equal(response.status, 422, `${contactMethod} must reject phone ${JSON.stringify(phone)}`);
+      assert.ok((await response.json()).fieldErrors.phone);
+    }
+  }
+  assert.equal(fetchMock.mock.callCount(), 0);
+});
+
+test("phone validation accepts reasonable international and local formatting", () => {
+  for (const phone of ["1234567", "0803 123 4567", "+234 803 123 4567", "+1 (202) 555-0123", "+44 20 7946 0958", "202.555.0123", "+123456789012345"]) {
+    assert.equal(contactSchema.safeParse({ ...contact, phone }).success, true, phone);
+  }
+});
+
+test("malformed email addresses are rejected before delivery", async (t) => {
+  setup(t);
+  const fetchMock = t.mock.method(globalThis, "fetch", async () => { throw new Error("Invalid submissions must not reach the provider"); });
+  for (const email of ["", "not-an-email", "example@", "@example.org", "example@example", "first last@example.org", "example@example.org\r\nBcc: other@example.org"]) {
+    const response = await contactPost(request("contact", { ...contact, email }));
+    assert.equal(response.status, 422, `Must reject email ${JSON.stringify(email)}`);
+    assert.ok((await response.json()).fieldErrors.email);
+  }
+  assert.equal(fetchMock.mock.callCount(), 0);
+});
+
+test("a manually entered country and trimmed email can reach the owner", async (t) => {
+  setup(t);
+  const fetchMock = t.mock.method(globalThis, "fetch", async (_url: Parameters<typeof fetch>[0], init?: Parameters<typeof fetch>[1]) => {
+    const payload = JSON.parse(String(init?.body));
+    assert.equal(payload.reply_to, "first.last+assessment@example.org");
+    assert.match(payload.text, /Country: Côte d’Ivoire/);
+    assert.ok(payload.text.includes(`Phone: ${contact.phone}`));
+    return Response.json({ id: "manual-country-test-email" });
+  });
+  const response = await contactPost(request("contact", {
+    ...contact, country: "  Côte d’Ivoire  ", email: "  first.last+assessment@example.org  ",
+  }));
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).ok, true);
+  assert.equal(fetchMock.mock.callCount(), 1);
 });
 
 test("consent is required and a caller cannot self-approve a review", async (t) => {

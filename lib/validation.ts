@@ -40,9 +40,12 @@ const wholeNumber = (minimum: number, maximum: number, label: string) =>
 export const contactSchema = z.object({
   name: singleLine("Full name", 2, 100),
   email: z.string().trim().max(254).email("Enter a valid email address."),
-  phone: singleLine("Phone number", 0, 40).default("").refine(
-    (value) => !value || (/^[+()\d\s.-]+$/.test(value) && value.replace(/\D/g, "").length >= 7),
-    "Enter a valid phone number, including the country code.",
+  phone: singleLine("Phone number", 1, 40).refine(
+    (value) => {
+      const digits = value.replace(/\D/g, "").length;
+      return /^\+?[\d() .-]+$/.test(value) && digits >= 7 && digits <= 15;
+    },
+    "Enter a phone number with 7–15 digits. You may include a leading +, spaces, parentheses, dots or hyphens.",
   ),
   country: singleLine("Country", 2, 100),
   profession: singleLine("Profession / job title", 2, 150),
@@ -55,9 +58,6 @@ export const contactSchema = z.object({
   consent,
   website: z.string().max(200).default(""),
 }).strict().superRefine((value, context) => {
-  if (value.contactMethod === "WhatsApp" && !value.phone) {
-    context.addIssue({ code: "custom", path: ["phone"], message: "Add your phone number so Samuel can contact you on WhatsApp." });
-  }
   if (value.contactMethod === "LinkedIn") {
     let valid = false;
     try {

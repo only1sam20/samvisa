@@ -84,6 +84,8 @@ The server sends to the configured owner address, never to an arbitrary recipien
 
 The forms only show success after Resend accepts the message and returns its identifier. Provider acceptance is not a guarantee of inbox delivery; use Resend's delivery logs when troubleshooting actual delivery. The application does not keep a separate database copy of submissions in this version.
 
+For local testing, `onboarding@resend.dev` can send to the email address associated with the Resend account. Use a sender on your verified domain when moving beyond that test setup. See [Resend's test-domain restrictions](https://resend.com/docs/knowledge-base/403-error-resend-dev-domain).
+
 ## Edit personal information and contact links
 
 Update `lib/siteConfig.ts`:
@@ -195,7 +197,9 @@ A database view alone does not make private submissions safe: review its grants,
 
 ## Form behavior and security
 
-Both API routes validate JSON on the server using Zod, enforce length and field constraints, reject unexpected fields, use a honeypot, check browser origins, and limit request bodies to 24 KiB. Submissions require consent. WhatsApp contact preference requires a phone number; LinkedIn preference requires an HTTPS LinkedIn profile URL.
+Both API routes validate JSON on the server using Zod, enforce length and field constraints, reject unexpected fields, use a honeypot, check browser origins, and limit request bodies to 24 KiB. Submissions require consent. Profile assessments require a phone number for every contact preference, accepting 7–15 digits with common international formatting. LinkedIn preference also requires an HTTPS LinkedIn profile URL.
+
+The assessment form uses native browser validation, including `type="email"`, together with shared client/server validation. Email checks validate the address format; they do not prove ownership or that the mailbox exists. Country is an editable, searchable dropdown containing all 249 ISO 3166-1 countries and territories in English alphabetical order. Visitors can select with the mouse or keyboard, or submit a manually entered country. Static names and search aliases are maintained in `lib/data/countries.ts`; no external country service is called when visitors use the form.
 
 The in-memory limiter allows up to five attempts per form per visitor IP in a 15-minute window on Vercel. Outside Vercel it uses a shared local key until a trusted reverse proxy is explicitly configured. This is best-effort protection within one process: serverless instances do not share it and restarts reset it. Add Vercel WAF rules or a persistent atomic limiter, such as Redis, when scaling or if abuse requires stronger protection. Raw IP addresses are not stored in the limiter map; it uses hashed keys.
 
@@ -213,6 +217,8 @@ The in-memory limiter allows up to five attempts per form per visitor IP in a 15
 | `500` | An unexpected server error occurred. |
 
 Missing API credentials do not crash the website and do not produce fake success messages. Development errors identify missing configuration variable names; production errors omit infrastructure details. Form values remain available after a failed submission so visitors can retry. The application does not log submission contents or credentials.
+
+Browser tests intercept both submission endpoints before each test, including when reusing a configured server. Their test server uses nonempty invalid email settings so `.env.local` cannot supply live credentials. API tests mock provider calls. Keep these safeguards in place when adding submission tests; verify live delivery separately and deliberately.
 
 ## Privacy and professional boundaries
 

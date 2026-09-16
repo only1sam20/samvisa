@@ -15,10 +15,10 @@ export const processSteps = [
 // Replace these dates and descriptions with Samuel's verified career history before publishing a detailed CV.
 // These entries describe practice areas; they are editable placeholders, not claims about employers or appointments.
 export const experience = [
-  { title: "Professional Profile Development", period: "Dates to be added", description: "Career entry placeholder. Add verified dates and a factual description of your profile assessment, career positioning, and documentation work." },
-  { title: "Extraordinary Ability Evidence Strategy", period: "Dates to be added", description: "Career entry placeholder. Add verified dates and describe your experience supporting professional evidence organization and development." },
-  { title: "Professional Fellowship Support", period: "Dates to be added", description: "Career entry placeholder. Add verified dates and details of your professional Fellowship profile and documentation support." },
-  { title: "Research & Scholarly Visibility", period: "Dates to be added", description: "Career entry placeholder. Add verified dates and details of your work in publication strategy and ethical research visibility." },
+  { title: "Professional Profile Development", period: "", description: "Career entry placeholder. Add verified dates and a factual description of your profile assessment, career positioning, and documentation work." },
+  { title: "Extraordinary Ability Evidence Strategy", period: "", description: "Career entry placeholder. Add verified dates and describe your experience supporting professional evidence organization and development." },
+  { title: "Professional Fellowship Support", period: "", description: "Career entry placeholder. Add verified dates and details of your professional Fellowship profile and documentation support." },
+  { title: "Research & Scholarly Visibility", period: "", description: "Career entry placeholder. Add verified dates and details of your work in publication strategy and ethical research visibility." },
 ];
 
 export const expertise = [

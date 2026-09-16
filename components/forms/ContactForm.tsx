@@ -3,6 +3,7 @@
 import { useState, useSyncExternalStore, type FormEvent } from "react";
 import { contactSchema, serviceOptions } from "../../lib/validation";
 import { Consent, FormFeedback, FormField, Honeypot, SubmitButton, useSubmission } from "./FormParts";
+import CountryInput from "./CountryInput";
 
 function requestedServiceSnapshot() {
   const requested = new URLSearchParams(window.location.search).get("service");
@@ -52,7 +53,7 @@ export default function ContactForm() {
   }
 
   return (
-    <form className="form-grid" onSubmit={onSubmit} noValidate aria-label="Request a consultation" aria-busy={pending}>
+    <form className="form-grid" onSubmit={onSubmit} aria-label="Request a consultation" aria-busy={pending}>
       <p className="form-note form-full">Tell me a little about your professional background and goals. Fields marked * are required.</p>
       <FormFeedback submission={submission} />
       <Honeypot id={field("website").id} />
@@ -60,13 +61,13 @@ export default function ContactForm() {
         <input {...field("name")} className="form-input" autoComplete="name" required minLength={2} maxLength={100} placeholder="Your full name" />
       </FormField>
       <FormField id={field("email").id} label="Email address" required error={errors.email}>
-        <input {...field("email")} className="form-input" type="email" autoComplete="email" required maxLength={254} placeholder="you@example.com" />
+        <input {...field("email")} className="form-input" type="email" inputMode="email" autoComplete="email" autoCapitalize="none" spellCheck={false} required maxLength={254} placeholder="you@example.com" />
       </FormField>
-      <FormField id={field("phone").id} label="Phone number" required={contactMethod === "WhatsApp"} optional={contactMethod !== "WhatsApp"} error={errors.phone}>
-        <input {...field("phone")} className="form-input" type="tel" autoComplete="tel" required={contactMethod === "WhatsApp"} maxLength={40} placeholder="Include your country code" />
+      <FormField id={field("phone").id} label="Phone number" required error={errors.phone}>
+        <input {...field("phone")} className="form-input" type="tel" inputMode="tel" autoComplete="tel" required minLength={7} maxLength={40} placeholder="Include your country code" />
       </FormField>
       <FormField id={field("country").id} label="Country" required error={errors.country}>
-        <input {...field("country")} className="form-input" autoComplete="country-name" required minLength={2} maxLength={100} placeholder="Where are you based?" />
+        <CountryInput {...field("country")} required minLength={2} maxLength={100} />
       </FormField>
       <FormField id={field("profession").id} label="Profession / job title" required error={errors.profession}>
         <input {...field("profession")} className="form-input" autoComplete="organization-title" required minLength={2} maxLength={150} placeholder="e.g. Senior software engineer" />

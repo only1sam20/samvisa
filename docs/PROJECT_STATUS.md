@@ -1,10 +1,12 @@
 # Project status: Samuel Adeyemo portfolio
 
-Latest verification: 15 September 2026 (typography revision). Original implementation checks were completed on 14 September. This document records completed implementation and local verification separately from public launch.
+Latest verification: 16 September 2026 (profile assessment revision). Original implementation checks were completed on 14 September. This document records completed implementation and local verification separately from public launch.
 
-**Current state:** implementation and local verification are complete. Production build, lint, TypeScript, all 17 API tests, and all 13 browser tests passed. The production dependency audit reported zero vulnerabilities. Eight core pages passed responsive checks at all six requested widths and automated accessibility scans. All 25 public content paths returned HTTP 200. Owner configuration and deployment remain; no real email was sent and no Vercel deployment was performed.
+**Current state:** the profile assessment updates are implemented and running locally. Production build, lint, TypeScript, 21 API tests, and six focused browser tests passed; the original site-wide verification and typography checks remain recorded below. Local Resend credentials are present and authenticated. One example assessment reached the configured inbox, confirmed by Resend's delivered event. No Vercel deployment was performed.
 
 **Typography correction, 15 September:** replaced undersized text throughout Home, inner pages, cards, forms, and footer with shared relative sizes: 16–18px body copy, 18–20px hero introduction, 16px desktop navigation, 15px buttons, and 14–15px supporting text. Responsive layouts now preserve these sizes, with earlier menu/hero stacking and mobile button stacking. Portrait captions, the experience badge, fallback labels, and article illustrations were adjusted to fit. Production build (including TypeScript), lint, all 13 browser tests, and 39 additional route/viewport inspections passed. No environment settings were changed.
+
+**Profile assessment correction, 16 September:** native email validation is enabled with `type="email"`, supported by shared client/server email validation. Phone is required for every contact preference. Country offers 249 alphabetized ISO countries and territories, searchable keyboard/mouse selection, and manual entry. The local site was restarted with the owner's email settings. A browser test unexpectedly used those live settings and sent one example assessment; read-only Resend verification confirmed delivery. Browser tests now intercept both submission endpoints, and test-server settings are nonempty invalid values, preventing live `.env.local` fallback. API tests also block unmocked provider requests. No additional test emails were sent.
 
 ## Delivery scope
 
@@ -15,10 +17,10 @@ Latest verification: 15 September 2026 (typography revision). Original implement
 | Twelve service details, five sample articles, three case-study examples, and 11 FAQs | `lib/data/`, dynamic service/article routes | Implemented; samples clearly labeled |
 | Navigation, filtering, article browsing, FAQ, review dialog, and responsive forms | `components/layout/`, `components/services/`, `components/insights/`, `components/forms/` | Complete; browser checks passed |
 | Profile/CV fallback logic and configurable contact links | `components/ui/`, `lib/siteConfig.ts`, `public/images/samuel-profile.png` | Original portrait supplied and added; CV and contacts still await owner inputs |
-| Contact/review endpoints, validation, moderation defaults, spam protection, and safe failures | `app/api/`, `lib/server/`, `lib/validation.ts` | 17 API tests passed; real delivery requires configuration |
+| Contact/review endpoints, validation, moderation defaults, spam protection, and safe failures | `app/api/`, `lib/server/`, `lib/validation.ts` | 21 API tests passed; assessment delivery confirmed locally |
 | Metadata, canonical support, OpenGraph, sitemap, robots, and structured data | `app/layout.tsx`, `lib/metadata.ts`, metadata routes | Complete; build, browser checks, and route audit passed |
 | Editing/setup/deployment documentation and optional future review schema | `README.md`, `.env.example`, `docs/` | Written; Supabase schema remains unused |
-| API and browser verification suites | `tests/api.test.ts`, `tests/browser/portfolio.spec.ts`, `playwright.config.ts` | API 17/17; browser 13/13 passed |
+| API and browser verification suites | `tests/api.test.ts`, `tests/browser/portfolio.spec.ts`, `playwright.config.ts` | API 21/21; original browser 13/13 passed; assessment browser checks recorded below |
 
 Testimonials live at `/#testimonials`. There is no separate `/testimonials` route. The application requires no visitor authentication and includes no public admin dashboard. A future Supabase connection is optional and has not been implemented.
 
@@ -32,10 +34,11 @@ Results below are recorded from the implementation team's final command output. 
 | Production compilation and route generation | `npm run build` | Passed; 33 generated pages, including framework/metadata output |
 | ESLint | `npm run lint` | Passed; zero warnings and zero errors |
 | TypeScript | `npm run typecheck` | Passed |
-| API behavior and validation | `npm test` | Passed, 17/17, including Host-alias regression coverage |
+| API behavior and validation | `npm test` | Passed, 21/21, including mandatory phone, email, manual-country, and Host-alias regressions |
 | Production dependency audit | `npm audit --omit=dev` | Zero reported vulnerabilities at time of check |
-| Browser setup | Playwright configuration and 13 tests; installed Chrome selected with `PLAYWRIGHT_CHANNEL=chrome` | Complete; production server on port 3100 |
+| Browser setup | Playwright configuration and 15 tests; installed Chrome selected with `PLAYWRIGHT_CHANNEL=chrome` | Complete; production server on port 3100 |
 | Complete browser suite | `npm run test:e2e` with Chrome channel | Passed again after typography revision, 13/13 in 1.7 minutes |
+| Assessment revision browser checks | Email and required phone validation; 249 sorted countries, search, keyboard/manual entry; service preselection; contact/review response states; automated accessibility | Passed, 6/6 in 1.3 minutes; country popup also inspected at 320, 375, 768, and 1440px without overflow |
 | 375, 430, 768, 1024, 1280, 1440 px | Eight core pages per width: HTTP 200, one H1, visible main, no horizontal overflow or page errors | Passed at every width |
 | Navigation and content interactions | Menu navigation/Escape/focus, category and search filters, service detail preselection, draft labels, keyboard FAQ | Passed |
 | Automated accessibility | WCAG 2 A/AA and 2.1 AA rule scans on all eight core pages | Zero automated violations |
@@ -46,7 +49,7 @@ Results below are recorded from the implementation team's final command output. 
 | Configured portrait | Original supplied `public/images/samuel-profile.png`, shared on Home and About; rebuild and inspect | PASS: production build and targeted browser test; image loads without cropping or horizontal overflow on both pages at 375, 768, and 1440px |
 | Typography and layout revision | Computed font sizes, screenshots, additional widths 320/900/1439/1920px, service/article detail pages, menu resizing, and mobile review dialog | PASS: 39 additional route/viewport inspections without overflow or undersized content text; desktop/mobile screenshots inspected; evidence in ignored `artifacts/typography-*` files |
 | Configured CV and contact methods | Add owner-supplied asset and values, rebuild, inspect | Pending owner inputs |
-| Real Resend delivery | Configure verified sender and owner inbox, submit both forms, inspect receipt/delivery logs | Pending owner configuration |
+| Local assessment delivery | Existing example assessment inspected through the read-only Resend API | Confirmed delivered on 16 September; live review delivery and production sender setup remain separate |
 | Vercel deployment | Build on Vercel, configure domain, check production routes and forms | Not performed |
 
 Automated accessibility scans cover the stated rules and pages; they are not a claim of exhaustive accessibility compliance. No Lighthouse score was measured.
@@ -98,7 +101,7 @@ Do not send secrets in public files or commit them to Git. Photo/CV changes and 
 - [x] Dependencies installed and lockfile recorded.
 - [x] Final production build passes with no unresolved compile or import errors.
 - [x] Lint and TypeScript checks pass.
-- [x] All 17 API tests pass, including malformed data, honeypot, origin, rate limit, provider failure, missing configuration, and Host-alias regressions.
+- [x] All 21 API tests pass, including malformed data, honeypot, origin, rate limit, provider failure, missing configuration, and Host-alias regressions.
 - [x] Production dependency audit reports zero vulnerabilities at time of check.
 - [x] Layout checks pass across eight core pages at all six requested widths.
 - [x] Final application fixes rebuilt and all 13 browser tests pass.

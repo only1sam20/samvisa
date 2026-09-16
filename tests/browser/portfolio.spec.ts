@@ -6,6 +6,15 @@ import { siteConfig } from "../../lib/siteConfig";
 
 const pages = ["/", "/about", "/services", "/case-studies", "/insights", "/contact", "/privacy", "/disclaimer"];
 
+// Browser checks must never send real submissions, including when reusing a
+// server that loaded .env.local. API tests separately exercise the route handlers.
+test.beforeEach(async ({ page }) => {
+  await page.route("**/api/{contact,reviews}", route => route.fulfill({
+    status: 503,
+    json: { ok: false, message: "The form is temporarily unavailable. Please try again later." },
+  }));
+});
+
 for (const width of [375, 430, 768, 1024, 1280, 1440]) {
   test(`public pages render without horizontal overflow at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
@@ -98,10 +107,11 @@ test("review dialog works on mobile, validates, and never publishes submissions"
   await expect(page.locator(".testimonials-empty")).toContainText("Client testimonials will be added with permission.");
 });
 
-test("consultation fails honestly when email is unconfigured and retains input", async ({ page }) => {
+test("consultation retains input on delivery failure and handles confirmed success", async ({ page }) => {
   await page.goto("/contact");
   await page.getByLabel("Full name").fill("Example Professional");
   await page.getByLabel("Email address").fill("example@example.org");
+  await page.getByLabel("Phone number").fill("+234 803 123 4567");
   await page.getByLabel(/^Country/).fill("Nigeria");
   await page.getByLabel("Profession / job title").fill("Engineer");
   await page.getByLabel("Years of professional experience").fill("10");
@@ -126,6 +136,96 @@ test("consultation fails honestly when email is unconfigured and retains input",
   releaseDelivery();
   await expect(page.locator(".form-status-success")).toBeFocused();
   await expect(page.getByRole("button", { name: "Send another inquiry" })).toBeVisible();
+});
+
+test("assessment validates email and required phone before submitting a manual country", async ({ page }) => {
+  const submissions: Record<string, unknown>[] = [];
+  await page.route("**/api/contact", async route => {
+    submissions.push(route.request().postDataJSON());
+    await route.fulfill({ status: 200, json: { ok: true, message: "Your consultation request has been received." } });
+  });
+  await page.goto("/contact");
+  const email = page.getByLabel("Email address");
+  const phone = page.getByLabel("Phone number");
+  const submit = page.getByRole("button", { name: "Request Consultation" });
+  await page.getByLabel("Full name").fill("Example Professional");
+  await email.fill("not-an-email");
+  await expect(email).toHaveAttribute("type", "email");
+  await expect(phone).toHaveAttribute("required", "");
+  await submit.click();
+  expect(await email.evaluate((input: HTMLInputElement) => input.validity.typeMismatch)).toBe(true);
+  await expect(email).toBeFocused();
+  expect(submissions).toHaveLength(0);
+
+  await email.fill("example@example.org");
+  await submit.click();
+  expect(await phone.evaluate((input: HTMLInputElement) => input.validity.valueMissing)).toBe(true);
+  await expect(phone).toBeFocused();
+  expect(submissions).toHaveLength(0);
+
+  await phone.fill("+234 803 123 4567");
+  await page.getByRole("combobox", { name: /^Country/ }).fill("Kosovo");
+  await page.getByLabel("Profession / job title").fill("Engineer");
+  await page.getByLabel("Years of professional experience").fill("10");
+  await page.getByLabel("Target service").selectOption("Professional Profile Assessment");
+  await page.getByLabel("Current situation").fill("I would like to organize my professional achievements.");
+  await page.getByLabel("What would you like help with?").fill("I need a clear roadmap for documenting evidence.");
+  await page.getByRole("checkbox").check();
+  await email.fill("example@example");
+  await submit.click();
+  await expect(page.locator(".form-error")).toContainText("Enter a valid email address.");
+  expect(submissions).toHaveLength(0);
+
+  await email.fill("example@example.org");
+  await phone.fill("call me tomorrow");
+  await submit.click();
+  await expect(phone).toHaveAttribute("aria-invalid", "true");
+  expect(submissions).toHaveLength(0);
+
+  await phone.fill("+234 803 123 4567");
+  await submit.click();
+  await expect(page.locator(".form-status-success")).toBeFocused();
+  expect(submissions).toHaveLength(1);
+  expect(submissions[0]).toMatchObject({ email: "example@example.org", phone: "+234 803 123 4567", country: "Kosovo" });
+});
+
+test("country dropdown is alphabetical, searchable and keyboard accessible on mobile", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/contact");
+  const country = page.getByRole("combobox", { name: /^Country/ });
+  await country.focus();
+  await country.press("ArrowDown");
+  const list = page.getByRole("listbox");
+  await expect(list).toBeVisible();
+  await expect(list.getByRole("option")).toHaveCount(249);
+  const names = await list.getByRole("option").allTextContents();
+  expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b, "en")));
+  await expect(list.getByRole("option").first()).toContainText("Afghanistan");
+  await expect(list.getByRole("option").last()).toContainText("Zimbabwe");
+  await country.press("Escape");
+  await expect(list).not.toBeVisible();
+  await expect(country).toBeFocused();
+
+  await country.fill("nige");
+  await expect(list.getByRole("option", { name: "Nigeria", exact: true })).toBeVisible();
+  await list.getByRole("option", { name: "Nigeria", exact: true }).click();
+  await expect(country).toHaveValue("Nigeria");
+  await expect(list).not.toBeVisible();
+  await country.fill("canada");
+  await country.press("ArrowDown");
+  await country.press("Enter");
+  await expect(country).toHaveValue("Canada");
+  await expect(list).not.toBeVisible();
+  await country.fill("My manually entered country");
+  await country.press("Tab");
+  await expect(list).not.toBeVisible();
+  await expect(country).toHaveValue("My manually entered country");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+
+  await country.fill("");
+  await country.press("ArrowDown");
+  const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
+  expect(results.violations.map(violation => ({ id: violation.id, targets: violation.nodes.map(node => node.target) }))).toEqual([]);
 });
 
 test("metadata, sitemap, profile assets and reduced motion have safe defaults", async ({ page, request }) => {

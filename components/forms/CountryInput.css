@@ -1,0 +1,16 @@
+.country-combobox { position: relative; min-width: 0; }
+.country-combobox-control { position: relative; }
+.country-combobox .country-combobox-input { width: 100%; min-width: 0; padding-right: 3.5rem; font-size: max(1rem, var(--text-body, 1rem)); }
+.country-combobox-toggle { position: absolute; top: 50%; right: .25rem; display: grid; place-items: center; width: 2.75rem; height: 2.75rem; padding: 0; transform: translateY(-50%); border: 0; border-radius: .25rem; background: transparent; color: var(--navy, #102b46); cursor: pointer; }
+.country-combobox-toggle:hover:not(:disabled) { background: #edf1ed; }
+.country-combobox-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.country-combobox-hint { margin-top: .5rem; color: #5c6975; font-size: 1rem; line-height: 1.6; }
+.country-combobox-popup { position: absolute; z-index: 30; top: calc(100% + .375rem); right: 0; left: 0; overflow: hidden; border: 1px solid #cbd4d7; border-radius: .375rem; background: #fff; box-shadow: 0 12px 30px #102b4626; }
+.country-combobox-popup.is-above { top: auto; bottom: calc(100% + .4rem); }
+.country-combobox-count { margin: 0; padding: .7rem 1rem; border-bottom: 1px solid #e1e6e8; background: #f5f7f4; color: #52616d; font-size: 1rem; line-height: 1.5; }
+.country-combobox-list { margin: 0; padding: .25rem 0; list-style: none; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.country-combobox-option { display: flex; align-items: center; justify-content: space-between; gap: .75rem; min-height: 2.75rem; padding: .7rem 1rem; color: #263e50; font-size: max(1rem, var(--text-body, 1rem)); line-height: 1.5; cursor: pointer; }
+.country-combobox-option span { min-width: 0; overflow-wrap: anywhere; }
+.country-combobox-option svg { flex-shrink: 0; color: #7b632e; }
+.country-combobox-option.is-active { background: #e9f0ee; color: #102b46; outline: 2px solid #738c88; outline-offset: -2px; }
+.country-combobox-empty { padding: .8rem 1rem; color: #5c6975; font-size: 1rem; line-height: 1.7; }
